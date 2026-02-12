@@ -1,0 +1,433 @@
+version: "3"
+
+networks:
+  net-isp_30:
+    ipam:
+      config:
+        - subnet: 10.2.2.0/30
+
+  n34_30:
+    ipam:
+      config:
+        - subnet: 172.21.6.176/29
+
+  n237_29:
+    ipam:
+      config:
+        - subnet: 172.21.6.184/29
+
+  n12_30:
+    ipam:
+      config:
+        - subnet: 172.21.6.192/29
+
+  n67_30:
+    ipam:
+      config:
+        - subnet: 172.21.6.216/29
+ 
+  n15_30:
+    ipam:
+      config:
+        - subnet: 172.21.6.200/29
+  n56_30:
+    ipam:
+      config:
+        - subnet: 172.21.6.208/29
+
+
+  net-r4:
+    ipam:
+      config:
+        - subnet:  172.21.4.0/24
+
+  net-r3:
+    ipam:
+      config:
+        - subnet: 172.21.5.0/24
+  net-r2:
+    ipam:
+      config:
+        - subnet: 172.21.6.128/27
+  net-r1:
+    ipam:
+      config:
+        - subnet: 172.21.6.160/28
+
+  net-r6:
+    ipam:
+      config:
+        - subnet:  172.21.6.64/26        
+  net-r7:
+    ipam:
+      config:
+        - subnet:  172.21.6.0/26
+
+services:
+  R4:
+    image: rprustagi/ub22-netpkg
+    container_name: R4
+    tty: true
+    sysctls:
+      - net.ipv4.ip_forward=1
+    cap_add:
+      - net_admin
+    networks:
+      net-isp_30:
+        ipv4_address: 10.2.2.2
+      n34_30:
+        ipv4_address: 172.21.6.178
+      net-r4:
+        ipv4_address: 172.21.4.254   
+
+    command: bash -c "ip route delete default
+                      && ip route add 172.21.5.0/24 via 172.21.6.179
+                      && ip route add 172.21.6.128/27 via 172.21.6.179                                        
+                      && ip route add 172.21.6.160/28 via 172.21.6.179
+                      && ip route add 172.21.6.0/26 via 172.21.6.179
+                      && ip route add 172.21.6.64/26 via 172.21.6.179
+                      && ip route add 172.21.6.200/29 via 172.21.6.179                                        
+                      && tail -f /dev/null
+                      "
+
+  R3:
+    image: rprustagi/ub22-netpkg
+    container_name: R3
+    tty: true
+    sysctls:
+      - net.ipv4.ip_forward=1
+    cap_add:
+      - net_admin
+    networks:
+      n34_30:
+        ipv4_address: 172.21.6.179
+      n237_29:
+        ipv4_address: 172.21.6.190
+      net-r3:
+        ipv4_address: 172.21.5.254        
+      
+    command: bash -c "ip route delete default
+                      && ip route add 172.21.4.0/24 via 172.21.6.178
+                      && ip route add 172.21.6.128/27 via 172.21.6.186                                        
+                      && ip route add 172.21.6.160/28 via 172.21.6.186
+                      && ip route add 172.21.6.0/26 via 172.21.6.187
+                      && ip route add 172.21.6.64/26 via 172.21.6.187                      
+                      && ip route add 10.2.2.0/30 via 172.21.6.178   
+                      && ip route add 172.21.6.200/29 via 172.21.6.186
+                      && ip route add 172.21.6.208/29 via 172.21.6.187                         
+                      && tail -f /dev/null                      
+                      "
+
+  R7:
+    image: rprustagi/ub22-netpkg
+    container_name: R7
+    tty: true
+    sysctls:
+      - net.ipv4.ip_forward=1
+    cap_add:
+      - net_admin
+    networks:
+      n237_29:
+        ipv4_address: 172.21.6.187
+      n67_30:
+        ipv4_address: 172.21.6.218
+      net-r7:
+        ipv4_address: 172.21.6.62
+
+    command: bash -c "ip route delete default
+                      && ip route add 172.21.4.0/24 via 172.21.6.190
+                      && ip route add 172.21.5.0/24 via 172.21.6.190                                                        
+                      && ip route add 172.21.6.64/26 via 172.21.6.219
+                      && ip route add 172.21.6.160/28 via 172.21.6.186
+                      && ip route add 172.21.6.128/27 via 172.21.6.186
+                      && ip route add 10.2.2.0/30 via 172.21.6.190
+                      && ip route add 172.21.6.208/29 via 172.21.6.219
+                      && tail -f /dev/null
+                      "
+
+  R6:
+    image: rprustagi/ub22-netpkg
+    container_name: R6
+    tty: true
+    sysctls:
+      - net.ipv4.ip_forward=1
+    cap_add:
+      - net_admin
+    networks:
+      n67_30:
+        ipv4_address: 172.21.6.219
+      n56_30:
+        ipv4_address: 172.21.6.210
+      net-r6:
+        ipv4_address: 172.21.6.126      
+
+    command: bash -c "ip route delete default                      
+                      && ip route add 172.21.4.0/24 via 172.21.6.218
+                      && ip route add 172.21.5.0/24 via 172.21.6.218
+                      && ip route add 172.21.6.128/27 via 172.21.6.218
+                      && ip route add 172.21.6.160/28 via 172.21.6.211
+                      && ip route add 172.21.6.0/26 via 172.21.6.218
+                      && ip route add 10.2.2.0/30 via 172.21.6.218      
+                      && tail -f /dev/null
+                      "
+  R5:
+    image: rprustagi/ub22-netpkg
+    container_name: R5
+    tty: true
+    sysctls:
+      - net.ipv4.ip_forward=1
+    cap_add:
+      - net_admin
+    networks:
+      n15_30:
+        ipv4_address: 172.21.6.203              
+      n56_30:
+        ipv4_address: 172.21.6.211     
+    command: bash -c "ip route delete default
+                      && ip route add 172.21.6.64/26 via 172.21.6.210
+                      && ip route add 172.21.6.160/28 via 172.21.6.202
+                      && ip route add 172.21.4.0/24 via 172.21.6.202
+                      && ip route add 172.21.5.0/24 via 172.21.6.202
+                      && ip route add 172.21.6.128/27 via 172.21.6.202
+                      && tail -f /dev/null
+                      "         
+  R1:
+    image: rprustagi/ub22-netpkg
+    container_name: R1
+    tty: true
+    sysctls:
+      - net.ipv4.ip_forward=1
+    cap_add:
+      - net_admin
+    networks:
+      n12_30:
+        ipv4_address: 172.21.6.195
+      n15_30:
+        ipv4_address: 172.21.6.202
+      net-r1:
+        ipv4_address: 172.21.6.174      
+
+    command: bash -c "ip route delete default
+                      && ip route add 172.21.4.0/24 via 172.21.6.194
+                      && ip route add 172.21.5.0/24 via 172.21.6.194
+                      && ip route add 172.21.6.128/27 via 172.21.6.194
+                      && ip route add 172.21.6.0/26 via 172.21.6.194                      
+                      && ip route add 10.2.2.0/30 via 172.21.6.194                                                                  
+                      && ip route add 172.21.6.64/26 via 172.21.6.203
+                      && tail -f /dev/null
+                      "
+
+  R2:
+    image: rprustagi/ub22-netpkg
+    container_name: R2
+    tty: true
+    sysctls:
+      - net.ipv4.ip_forward=1
+    cap_add:
+      - net_admin
+    networks:
+      n237_29:
+        ipv4_address: 172.21.6.186
+      n12_30:
+        ipv4_address: 172.21.6.194
+      net-r2:
+        ipv4_address: 172.21.6.158
+
+    command: bash -c "ip route delete default    
+                      && ip route add 172.21.4.0/24 via 172.21.6.190
+                      && ip route add 172.21.5.0/24 via 172.21.6.190                      
+                      && ip route add 172.21.6.64/26 via 172.21.6.187
+                      && ip route add 172.21.6.0/26 via 172.21.6.187
+                      && ip route add 172.21.6.160/28 via 172.21.6.195
+                      && ip route add 10.2.2.0/30 via 172.21.6.190  
+                      && ip route add 172.21.6.200/29 via 172.21.6.195                                                                                                
+                      && tail -f /dev/null
+                      "
+
+  HF_1:
+    image: rprustagi/ub22-apache2-cgi-py
+    container_name: hF1
+    tty: true
+    cap_add:
+        - ALL
+    networks:
+      net-r4:
+        ipv4_address: 172.21.4.2
+    volumes:
+      - ./scripts:/scripts
+    command: bash -c "ip route delete default
+                      && ip route add default via 172.21.4.254                   
+                      && tail -f /dev/null
+                     "
+
+  HF_200:
+    image: rprustagi/ub22-apache2-cgi-py
+    container_name: hF200
+    tty: true
+    cap_add:
+        - ALL
+    networks:
+      net-r4:
+        ipv4_address: 172.21.4.202
+    volumes:
+      - ./scripts:/scripts
+    command: bash -c "ip route delete default
+                      && ip route add default via 172.21.4.254                            
+                      && tail -f /dev/null
+                     "
+  HE_1:
+    image: rprustagi/ub22-apache2-cgi-py
+    container_name: hE1
+    tty: true
+    cap_add:
+        - ALL
+    networks:
+      net-r3:
+        ipv4_address: 172.21.5.2
+    volumes:
+      - ./scripts:/scripts
+    command: bash -c "ip route delete default
+                      && ip route add default via 172.21.5.254
+                      && tail -f /dev/null
+                     "
+
+  HE_127:
+    image: rprustagi/ub22-apache2-cgi-py
+    container_name: hE127
+    tty: true
+    cap_add:
+        - ALL
+    networks:
+      net-r3:
+        ipv4_address: 172.21.5.128
+    volumes:
+      - ./scripts:/scripts
+    command: bash -c "ip route delete default
+                      && ip route add default via 172.21.5.254    
+                      && tail -f /dev/null
+                     "
+  HD_1:
+    image: rprustagi/ub22-apache2-cgi-py
+    container_name: hD1
+    tty: true
+    cap_add:
+        - ALL
+    networks:
+      net-r7:
+        ipv4_address: 172.21.6.2
+    volumes:
+      - ./scripts:/scripts
+    command: bash -c "ip route delete default
+                      && ip route add default via 172.21.6.62                   
+                      && tail -f /dev/null
+                     "
+
+  HD_60:
+    image: rprustagi/ub22-apache2-cgi-py
+    container_name: hD60
+    tty: true
+    cap_add:
+        - ALL
+    networks:
+      net-r7:
+        ipv4_address: 172.21.6.61
+    volumes:
+      - ./scripts:/scripts
+    command: bash -c "ip route delete default
+                      && ip route add default via 172.21.6.62                           
+                      && tail -f /dev/null
+                     "
+  HC_1:
+    image: rprustagi/ub22-apache2-cgi-py
+    container_name: hC1
+    tty: true
+    cap_add:
+        - ALL
+    networks:
+      net-r6:
+        ipv4_address: 172.21.6.66
+    volumes:
+      - ./scripts:/scripts
+    command: bash -c "ip route delete default
+                      && ip route add default via 172.21.6.126                     
+                      && tail -f /dev/null
+                     "
+
+  HC_31:
+    image: rprustagi/ub22-apache2-cgi-py
+    container_name: hC31
+    tty: true
+    cap_add:
+        - ALL
+    networks:
+      net-r6:
+        ipv4_address: 172.21.6.125
+    volumes:
+      - ./scripts:/scripts
+    command: bash -c "ip route delete default
+                      && ip route add default via 172.21.6.126                           
+                      && tail -f /dev/null
+                     "                                          
+  HB_1:
+    image: rprustagi/ub22-apache2-cgi-py
+    container_name: hB1
+    tty: true
+    cap_add:
+        - ALL
+    networks:
+      net-r2:
+        ipv4_address: 172.21.6.130
+    volumes:
+      - ./scripts:/scripts
+    command: bash -c "ip route delete default
+                      && ip route add default via 172.21.6.158 
+                      && tail -f /dev/null
+                     "
+
+  HB_20:
+    image: rprustagi/ub22-apache2-cgi-py
+    container_name: hB20
+    tty: true
+    cap_add:
+        - ALL
+    networks:
+      net-r2:
+        ipv4_address: 172.21.6.150
+    volumes:
+      - ./scripts:/scripts
+    command: bash -c "ip route delete default
+                      && ip route add default via 172.21.6.158    
+                      && tail -f /dev/null
+                     "
+
+  HA_1:
+    image: rprustagi/ub22-apache2-cgi-py
+    container_name: hA1
+    tty: true
+    cap_add:
+        - ALL
+    networks:
+      net-r1:
+        ipv4_address: 172.21.6.162
+    volumes:
+      - ./scripts:/scripts
+    command: bash -c "ip route delete default
+                      && ip route add default via 172.21.6.174                   
+                      && tail -f /dev/null
+                     "
+
+  HA_10:
+    image: rprustagi/ub22-apache2-cgi-py
+    container_name: hA10
+    tty: true
+    cap_add:
+        - ALL
+    networks:
+      net-r1:
+        ipv4_address: 172.21.6.172
+    volumes:
+      - ./scripts:/scripts
+    command: bash -c "ip route delete default
+                      && ip route add default via 172.21.6.174                           
+                      && tail -f /dev/null
+                     "
